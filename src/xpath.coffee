@@ -3,6 +3,10 @@ pad = (s, n) ->
     new Array(n+1).join(s)
 
 exports.parse = parse = (string = "", inpredicate = no) ->
+    error = (msg) ->
+        p = orig.length-string.length
+        new Error "#{msg}\n#{orig}\n#{pad '-',p}^"
+    # lets begin …
     orig = "#{string}"
     stack = [{}]
     while string.length
@@ -11,7 +15,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
         if (star = string.match(/^\*+/))
             star = star[0]
             if star.length > 1
-                throw new Error "only on star at once"
+                throw error "only on star at once"
             stack[0].name = star
             hit = star
         # whitespace
@@ -24,7 +28,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
             stack[0].axis = switch(axis.length)
                 when 1 then "self"
                 when 2 then "parent"
-                else throw new Error "too many '.'"
+                else throw error "too many '.'"
             hit = axis
         # seperator
         else if (sep = string.match(/^\/+/))
@@ -36,13 +40,13 @@ exports.parse = parse = (string = "", inpredicate = no) ->
             stack[0].axis = switch(sep.length)
                 when 1 then "child"
                 when 2 then "descendant-or-self"
-                else throw new Error "too much /"
+                else throw error "too much /"
             stack[0].name = "node()" if sep.length is 2
         # axis
         else if (axis = string.match(/^::/))
             axis = axis[0]
             unless stack[0]?.name?.length
-                throw new Error "need some chars for axis"
+                throw error "need some chars for axis"
             stack[0].axis = stack[0].name
             stack[0].name = null
             hit = axis
@@ -50,7 +54,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
         else if (ns = string.match(/^:/))
             ns = ns[0]
             unless stack[0]?.name?.length
-                throw new Error "need some chars for namespace"
+                throw error "need some chars for namespace"
             stack[0].namespace = stack[0].name
             stack[0].name = null
             hit = ns
@@ -58,7 +62,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
         else if (attr = string.match(/^@+/))
             attr = attr[0]
             if attr.length > 1
-                throw new Error "only on @ at once"
+                throw error "only on @ at once"
             stack[0].axis = "attribute"
             hit = attr
         # predicate
@@ -86,9 +90,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
             stack[0].name = name
             hit = name
         # not parsable
-        else
-            p = orig.length - string.length
-            throw new Error "not parsable\n#{orig}\n#{pad '-',p}^"
+        else throw error "not parsable"
         # remove hit from string
         string = string.substr(hit.length)
     return stack.reverse()
