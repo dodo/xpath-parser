@@ -4,7 +4,7 @@
 module.exports =
 
     foo: (æ) ->
-        exp = parse "/iq/query/namespace::foobar"
+        exp = parse "/f:iq/o:query/namespace::o:foobar"
         console.log exp
 
         æ.done()
@@ -16,3 +16,14 @@ module.exports =
         æ.done()
 
 
+    baz: (æ) ->
+        exp = parse "./iq/query../namespace::foobar"
+        console.log exp
+
+        æ.done()
+
+    ns: (æ) ->
+        exp = parse "//gs:enquiry"
+        console.log exp
+
+        æ.done()
