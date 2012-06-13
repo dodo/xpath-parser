@@ -16,7 +16,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
             star = star[0]
             if star.length > 1
                 throw error "only on star at once"
-            stack[0].name = star
+            stack[0].localname = star
             hit = star
         # whitespace
         else if (space = string.match(/^\s+/))
@@ -24,7 +24,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
         # self:: shortcut
         else if (axis = string.match(/^\.+/))
             axis = axis[0]
-            stack.push(separator:'/', name:'node()')
+            stack.push(separator:'/', expression:'node()')
             stack[0].axis = switch(axis.length)
                 when 1 then "self"
                 when 2 then "parent"
@@ -41,23 +41,25 @@ exports.parse = parse = (string = "", inpredicate = no) ->
                 when 1 then "child"
                 when 2 then "descendant-or-self"
                 else throw error "too much /"
-            stack[0].name = "node()" if sep.length is 2
+            stack[0].expression = "node()" if sep.length is 2
         # axis
         else if (axis = string.match(/^::/))
             axis = axis[0]
-            unless stack[0]?.name?.length
+            unless stack[0]?.localname?.length
                 throw error "need some chars for axis"
-            stack[0].axis = stack[0].name
-            stack[0].name = null
+            stack[0].axis = stack[0].localname
+            stack[0].localname = null
+            stack[0].QName = null
             hit = axis
-        # namespace
-        else if (ns = string.match(/^:/))
-            ns = ns[0]
-            unless stack[0]?.name?.length
-                throw error "need some chars for namespace"
-            stack[0].namespace = stack[0].name
-            stack[0].name = null
-            hit = ns
+        # prefix
+        else if (prefix = string.match(/^:/))
+            prefix = prefix[0]
+            unless stack[0]?.localname?.length
+                throw error "need some chars for prefix"
+            stack[0].prefix = stack[0].localname
+            stack[0].localname = null
+            stack[0].QName = null
+            hit = prefix
         # attribute shortcut
         else if (attr = string.match(/^@+/))
             attr = attr[0]
@@ -84,7 +86,12 @@ exports.parse = parse = (string = "", inpredicate = no) ->
             stack[0].value = value
         # name
         else if (name = string.match(/^\w+/))
-            stack[0].name = hit = name[0]
+            name = name[0]
+            stack[0].localname = name
+            stack[0].QName = name
+            if stack[0].prefix?
+                stack[0].QName = stack[0].prefix + ":" + name
+            hit = name
         # not parsable
         else throw error "not parsable"
         # remove hit from string
