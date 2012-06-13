@@ -43,6 +43,14 @@ exports.parse = (string = "") ->
             stack[0].axis = stack[0].name
             stack[0].name = null
             hit = axis
+        # namespace
+        else if (ns = string.match(/^:/))
+            ns = ns[0]
+            unless stack[0]?.name?.length
+                throw new Error "need some chars for namespace"
+            stack[0].namespace = stack[0].name
+            stack[0].name = null
+            hit = ns
         # attribute shortcut
         else if (attr = string.match(/^@+/))
             attr = attr[0]
