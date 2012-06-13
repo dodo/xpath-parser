@@ -2,9 +2,9 @@
 pad = (s, n) ->
     new Array(n+1).join(s)
 
-exports.parse = (string = "") ->
+exports.parse = parse = (string = "", inpredicate = no) ->
     orig = "#{string}"
-    stack = []
+    stack = [{}]
     while string.length
         hit = null
         # allstars
@@ -12,10 +12,11 @@ exports.parse = (string = "") ->
             star = star[0]
             if star.length > 1
                 throw new Error "only on star at once"
-            if stack[0].name?.length
-                throw new Error "already found a name"
             stack[0].name = star
             hit = star
+        # whitespace
+        else if (space = string.match(/^\s+/))
+            hit = space[0] # ignore it
         # self:: shortcut
         else if (axis = string.match(/^\.+/))
             axis = axis[0]
@@ -27,9 +28,11 @@ exports.parse = (string = "") ->
             hit = axis
         # seperator
         else if (sep = string.match(/^\/+/))
-            hit = '/'
+            hit = '/' # leave the other / to be matched again
             sep = sep[0]
-            stack.unshift(separator:hit)
+            if stack[0].seperator?
+                stack.unshift({})
+            stack[0].seperator = hit
             stack[0].axis = switch(sep.length)
                 when 1 then "child"
                 when 2 then "descendant-or-self"
@@ -59,22 +62,33 @@ exports.parse = (string = "") ->
             stack[0].axis = "attribute"
             hit = attr
         # predicate
-        else if (predicate = string.match(/^\[([^\]]*)\]/))
+        else if not inpredicate and (predicate = string.match(/^\[([^\]]*)\]/))
             hit = predicate[0]
             predicate = predicate[1]
             if predicate.length # empty? is ok, i guess
                 # TODO parse predicate
-                (stack[0].predicate ?= []).push(predicate)
+                (stack[0].predicate ?= []).push(parse(predicate, yes))
+        # operator
+        else if inpredicate and (operator = string.match(/((|!|<|>)=)|>|</))
+            operator = operator[0]
+            stack[0].operator = operator
+            hit = operator
+        # operator value
+        else if inpredicate and stack[0].operator? and (value = string.match(/^[^\s]+/))
+            value = value[0]
+            hit = value
+            if (val = value.match(/^("|')(.*)("|')$/))
+                value = val[2] # unescape
+            stack[0].value = value
         # name
         else if (name = string.match(/^\w+/))
             name = name[0]
-            if stack[0].name?.length
-                throw new Error "already found a name"
             stack[0].name = name
             hit = name
         # not parsable
         else
             p = orig.length - string.length
             throw new Error "not parsable\n#{orig}\n#{pad '-',p}^"
+        # remove hit from string
         string = string.substr(hit.length)
     return stack.reverse()
