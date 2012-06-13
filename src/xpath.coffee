@@ -24,7 +24,10 @@ exports.parse = parse = (string = "", inpredicate = no) ->
         # self:: shortcut
         else if (axis = string.match(/^\.+/))
             axis = axis[0]
-            stack.push(separator:'/', expression:'node()')
+            if stack[0].axis?
+                stack.unshift({})
+            stack[0].seperator = "/"
+            stack[0].expression = "node()"
             stack[0].axis = switch(axis.length)
                 when 1 then "self"
                 when 2 then "parent"
@@ -34,7 +37,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
         else if (sep = string.match(/^\/+/))
             hit = '/' # leave the other / to be matched again
             sep = sep[0]
-            if stack[0].seperator?
+            if stack[0].axis?
                 stack.unshift({})
             stack[0].seperator = hit
             stack[0].axis = switch(sep.length)
