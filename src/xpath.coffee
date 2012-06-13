@@ -72,7 +72,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
             if predicate.length # empty? is ok, i guess
                 (stack[0].predicate ?= []).push(parse(predicate, yes))
         # operator
-        else if inpredicate and (operator = string.match(/((|!|<|>)=)|>|</))
+        else if inpredicate and (operator = string.match(/^((|!|<|>)=)|>|</))
             operator = operator[0]
             stack[0].operator = operator
             hit = operator
