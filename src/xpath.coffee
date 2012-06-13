@@ -73,9 +73,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
                 (stack[0].predicate ?= []).push(parse(predicate, yes))
         # operator
         else if inpredicate and (operator = string.match(/^((|!|<|>)=)|>|</))
-            operator = operator[0]
-            stack[0].operator = operator
-            hit = operator
+            stack[0].operator = hit = operator[0]
         # operator value
         else if inpredicate and stack[0].operator? and
           (value = string.match(/^'([^']*)'|"([^"]*)"|[^\s\/.]+/))
@@ -86,9 +84,7 @@ exports.parse = parse = (string = "", inpredicate = no) ->
             stack[0].value = value
         # name
         else if (name = string.match(/^\w+/))
-            name = name[0]
-            stack[0].name = name
-            hit = name
+            stack[0].name = hit = name[0]
         # not parsable
         else throw error "not parsable"
         # remove hit from string
