@@ -78,7 +78,8 @@ exports.parse = parse = (string = "", inpredicate = no) ->
             stack[0].operator = operator
             hit = operator
         # operator value
-        else if inpredicate and stack[0].operator? and (value = string.match(/^[^\s]+/))
+        else if inpredicate and stack[0].operator? and
+          (value = string.match(/^'([^']*)'|"([^"]*)"|[^\s\/.]+/))
             value = value[0]
             hit = value
             if (val = value.match(/^("|')(.*)("|')$/))
