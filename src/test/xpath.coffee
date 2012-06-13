@@ -9,3 +9,10 @@ module.exports =
 
         æ.done()
 
+    bar: (æ) ->
+        exp = parse '//form[@action = "submit.html"]//table//*[not(text())]'
+        console.log exp
+
+        æ.done()
+
+
