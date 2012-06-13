@@ -1,0 +1,15 @@
+{ "name": "simple-xpath"
+, "description": "simple xpath parser"
+, "version": "0.0.1"
+, "homepage": "https://github.com/dodo/node-simple-xpath"
+, "author": "dodo (https://github.com/dodo)"
+, "repository": {"type": "git", "url": "git://github.com/dodo/node-simple-xpath.git"}
+, "main": "lib/xpath.js"
+, "engines": {"node": ">= 0.4.x"}
+, "keywords": ["primitive", "simple", "xpath", "parser"]
+, "scripts": {
+    "prepublish": "cake build"}
+, "devDependencies": {
+    "muffin": ">= 0.2.6",
+    "coffee-script": ">= 1.1.3"}
+}
