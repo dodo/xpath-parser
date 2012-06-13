@@ -19,10 +19,7 @@ exports.parse = (string = "") ->
         # self:: shortcut
         else if (axis = string.match(/^\.+/))
             axis = axis[0]
-            if stack[0]?.axis?.length
-                throw new Error "already found an axis"
-            unless stack.length # make an exception when this is the first hit
-                stack.push {}
+            stack.push(separator:'/', name:'node()')
             stack[0].axis = switch(axis.length)
                 when 1 then "self"
                 when 2 then "parent"
@@ -30,18 +27,19 @@ exports.parse = (string = "") ->
             hit = axis
         # seperator
         else if (sep = string.match(/^\/+/))
+            hit = '/'
             sep = sep[0]
-            if sep.length > 2
-                throw new Error "too much /"
-            stack.unshift(separator:sep)
-            hit = sep
+            stack.unshift(separator:hit)
+            stack[0].axis = switch(sep.length)
+                when 1 then "child"
+                when 2 then "descendant-or-self"
+                else throw new Error "too much /"
+            stack[0].name = "node()" if sep.length is 2
         # axis
         else if (axis = string.match(/^::/))
             axis = axis[0]
             unless stack[0]?.name?.length
                 throw new Error "need some chars for axis"
-            if stack[0].axis?.length
-                throw new Error "already found an axis"
             stack[0].axis = stack[0].name
             stack[0].name = null
             hit = axis
@@ -50,8 +48,6 @@ exports.parse = (string = "") ->
             attr = attr[0]
             if attr.length > 1
                 throw new Error "only on @ at once"
-            if stack[0].axis?.length
-                throw new Error "already found an axis"
             stack[0].axis = "attribute"
             hit = attr
         # predicate
