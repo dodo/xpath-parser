@@ -104,9 +104,6 @@ exports.parse = parse = (string = "") ->
                     stack[0].expression = exp.reverse()
             scope.shift()
             hit = bracket
-        # operator - = != <= >= > <
-        else if (operator = string.match(/^((|!|<|>)=)|>|</))
-            stack[0].operator = hit = operator[0]
         # name
         else if (name = string.match(/^\w+/))
             name = name[0]
@@ -116,6 +113,9 @@ exports.parse = parse = (string = "") ->
             if stack[0].prefix?
                 stack[0].QName = stack[0].prefix + ":" + name
             hit = name
+        # operator - = != <= >= > <
+        else if (operator = string.match(/^((|!|<|>)=)|>|</))
+            stack[0].operator = hit = operator[0]
         # value - "…" '…'
         else if (
             stack[0].operator? and
