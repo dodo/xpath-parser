@@ -12,7 +12,7 @@ exports.parse = parse = (string = "") ->
     scope = [] # for brackets
     while string.length
         hit = null
-        # allstars
+        # allstars - *
         if (star = string.match(/^\*+/))
             star = star[0]
             if star.length > 1
@@ -22,7 +22,7 @@ exports.parse = parse = (string = "") ->
         # whitespace
         else if (space = string.match(/^\s+/))
             hit = space[0] # ignore it
-        # self:: shortcut
+        # self:: shortcut - . ..
         else if (axis = string.match(/^\.+/))
             axis = axis[0]
             if stack[0].axis?
@@ -34,7 +34,7 @@ exports.parse = parse = (string = "") ->
                 when 2 then "parent"
                 else throw error "too many '.'"
             hit = axis
-        # seperator
+        # seperator - / //
         else if (sep = string.match(/^\/+/))
             hit = '/' # leave the other / to be matched again
             sep = sep[0]
@@ -46,7 +46,7 @@ exports.parse = parse = (string = "") ->
                 when 2 then "descendant-or-self"
                 else throw error "too much /"
             stack[0].expression = "node()" if sep.length is 2
-        # axis
+        # axis - ::
         else if (axis = string.match(/^::/))
             axis = axis[0]
             unless stack[0]?.localname?.length
@@ -55,7 +55,7 @@ exports.parse = parse = (string = "") ->
             stack[0].localname = null
             stack[0].QName = null
             hit = axis
-        # prefix
+        # prefix - :
         else if (prefix = string.match(/^:/))
             prefix = prefix[0]
             unless stack[0]?.localname?.length
@@ -64,20 +64,20 @@ exports.parse = parse = (string = "") ->
             stack[0].localname = null
             stack[0].QName = null
             hit = prefix
-        # attribute shortcut
+        # attribute shortcut - @
         else if (attr = string.match(/^@+/))
             attr = attr[0]
             if attr.length > 1
                 throw error "only on @ at once"
             stack[0].axis = "attribute"
             hit = attr
-        # open predicate
+        # open predicate - [
         else if (bracket = string.match(/^\[/))
             bracket = bracket[0]
             stack.unshift({})
             scope.unshift({bracket, ptr:stack.length, pos:string.length})
             hit = bracket
-        # close predicate
+        # close predicate - ]
         else if (bracket = string.match(/^\]/))
             bracket = bracket[0]
             if scope.length is 0
@@ -89,10 +89,10 @@ exports.parse = parse = (string = "") ->
             (stack[0].predicate ?= []).push(predicate.reverse())
             scope.shift()
             hit = bracket
-        # operator
+        # operator - = != <= >= > <
         else if (operator = string.match(/^((|!|<|>)=)|>|</))
             stack[0].operator = hit = operator[0]
-        # operator value
+        # operator value - "*" '*'
         else if stack[0].operator? and
           (value = string.match(/^'([^']*)'|"([^"]*)"|[^\s\/.]+/))
             value = value[0]
