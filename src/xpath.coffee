@@ -28,7 +28,8 @@ exports.parse = parse = (string = "") ->
             if stack[0].axis?
                 stack.unshift({})
             stack[0].seperator = "/"
-            stack[0].expression = "node()"
+            stack[0].QName = stack[0].localname = "node"
+            stack[0].args = [{}]
             stack[0].axis = switch(axis.length)
                 when 1 then "self"
                 when 2 then "parent"
@@ -45,7 +46,9 @@ exports.parse = parse = (string = "") ->
                 when 1 then "child"
                 when 2 then "descendant-or-self"
                 else throw error "too much /"
-            stack[0].expression = "node()" if sep.length is 2
+            if sep.length is 2
+                stack[0].QName = stack[0].localname = "node"
+                stack[0].args = [{}]
         # axis - ::
         else if (axis = string.match(/^::/))
             axis = axis[0]
