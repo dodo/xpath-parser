@@ -2,13 +2,14 @@
 pad = (s, n) ->
     new Array(n+1).join(s)
 
-exports.parse = parse = (string = "", inpredicate = no) ->
+exports.parse = parse = (string = "") ->
     error = (msg) ->
         p = orig.length-string.length
         new Error "#{msg}\n#{orig}\n#{pad '-',p}^"
     # lets begin …
     orig = "#{string}"
     stack = [{}]
+    scope = [] # for brackets
     while string.length
         hit = null
         # allstars
@@ -70,17 +71,29 @@ exports.parse = parse = (string = "", inpredicate = no) ->
                 throw error "only on @ at once"
             stack[0].axis = "attribute"
             hit = attr
-        # predicate
-        else if not inpredicate and (predicate = string.match(/^\[([^\]]*)\]/))
-            hit = predicate[0]
-            predicate = predicate[1]
-            if predicate.length # empty? is ok, i guess
-                (stack[0].predicate ?= []).push(parse(predicate, yes))
+        # open predicate
+        else if (bracket = string.match(/^\[/))
+            bracket = bracket[0]
+            stack.unshift({})
+            scope.unshift({bracket, ptr:stack.length, pos:string.length})
+            hit = bracket
+        # close predicate
+        else if (bracket = string.match(/^\]/))
+            bracket = bracket[0]
+            if scope.length is 0
+                throw error "no opening bracket"
+            if scope[0].bracket isnt "["
+                string = orig.substr(orig.length - scope[0].pos) # restore string
+                throw error "other unclosed scope"
+            predicate = stack.splice(0, stack.length - scope[0].ptr + 1)
+            (stack[0].predicate ?= []).push(predicate.reverse())
+            scope.shift()
+            hit = bracket
         # operator
-        else if inpredicate and (operator = string.match(/^((|!|<|>)=)|>|</))
+        else if (operator = string.match(/^((|!|<|>)=)|>|</))
             stack[0].operator = hit = operator[0]
         # operator value
-        else if inpredicate and stack[0].operator? and
+        else if stack[0].operator? and
           (value = string.match(/^'([^']*)'|"([^"]*)"|[^\s\/.]+/))
             value = value[0]
             hit = value
@@ -99,4 +112,9 @@ exports.parse = parse = (string = "", inpredicate = no) ->
         else throw error "not parsable"
         # remove hit from string
         string = string.substr(hit.length)
+    # all open brackets should be closed by now, if not, throw an error
+    if scope.length
+        err = scope[scope.length - 1] # get first found bracket
+        string = orig.substr(orig.length - err.pos) # restore string
+        throw error "no closing bracket"
     return stack.reverse()
