@@ -117,8 +117,13 @@ exports.parse = parse = (string = "") ->
                 stack[0].QName = stack[0].prefix + ":" + name
             hit = name
         # value - "…" '…'
-        else if (stack[0].operator? or scope[0]?.bracket is "(") and
-          (value = string.match(/^('([^']*)'|"([^"]*)"|[^\s\/.]+)/))
+        else if (
+            stack[0].operator? and
+            (value = string.match(/^('([^']*)'|"([^"]*)"|([^\s\/.]+))/))
+          ) or (
+            scope[0]?.bracket is "(" and
+            (value = string.match(/^('([^']*)'|"([^"]*)")/))
+          )
             value = value[0]
             hit = value
             if (val = value.match(/^("|')(.*)("|')$/))
