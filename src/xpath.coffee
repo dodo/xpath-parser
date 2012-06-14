@@ -71,43 +71,56 @@ exports.parse = parse = (string = "") ->
                 throw error "only on @ at once"
             stack[0].axis = "attribute"
             hit = attr
-        # open predicate - [
-        else if (bracket = string.match(/^\[/))
+        # open bracket - [ (
+        else if (bracket = string.match(/^(\[|\()/))
             bracket = bracket[0]
             stack.unshift({})
             scope.unshift({bracket, ptr:stack.length, pos:string.length})
             hit = bracket
-        # close predicate - ]
-        else if (bracket = string.match(/^\]/))
+        # close bracket - ] )
+        else if (bracket = string.match(/^(\]|\))/))
             bracket = bracket[0]
-            if scope.length is 0
+            opening = if bracket is "]" then "[" else "("
+            if not scope.some((s) -> s.bracket is opening)
                 throw error "no opening bracket"
-            if scope[0].bracket isnt "["
+            if not scope[0].bracket is opening
                 string = orig.substr(orig.length - scope[0].pos) # restore string
                 throw error "other unclosed scope"
-            predicate = stack.splice(0, stack.length - scope[0].ptr + 1)
-            (stack[0].predicate ?= []).push(predicate.reverse())
+            # remove scoped entries from stack
+            exp = stack.splice(0, stack.length - scope[0].ptr + 1)
+            # predicate
+            if bracket is "]"
+                (stack[0].predicate ?= []).push(exp.reverse())
+            # function call or expression
+            else # ")"
+                # function call
+                if stack[0].QName? # we found already some text before
+                    stack[0].args = exp.reverse()
+                # expression
+                else
+                    stack[0].expression = exp.reverse()
             scope.shift()
             hit = bracket
         # operator - = != <= >= > <
         else if (operator = string.match(/^((|!|<|>)=)|>|</))
             stack[0].operator = hit = operator[0]
-        # operator value - "*" '*'
-        else if stack[0].operator? and
-          (value = string.match(/^'([^']*)'|"([^"]*)"|[^\s\/.]+/))
-            value = value[0]
-            hit = value
-            if (val = value.match(/^("|')(.*)("|')$/))
-                value = val[2] # unescape
-            stack[0].value = value
         # name
         else if (name = string.match(/^\w+/))
             name = name[0]
             stack[0].localname = name
             stack[0].QName = name
+            stack[0].axis ?= "child"
             if stack[0].prefix?
                 stack[0].QName = stack[0].prefix + ":" + name
             hit = name
+        # value - "…" '…'
+        else if (stack[0].operator? or scope[0]?.bracket is "(") and
+          (value = string.match(/^('([^']*)'|"([^"]*)"|[^\s\/.]+)/))
+            value = value[0]
+            hit = value
+            if (val = value.match(/^("|')(.*)("|')$/))
+                value = val[2] # unescape
+            stack[0].value = value
         # not parsable
         else throw error "not parsable"
         # remove hit from string
