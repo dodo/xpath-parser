@@ -1,9 +1,9 @@
 { "name": "xpath-parser"
 , "description": "simple xpath parser"
 , "version": "0.0.1"
-, "homepage": "https://github.com/dodo/node-xpath-parser"
+, "homepage": "https://github.com/dodo/xpath-parser"
 , "author": "dodo (https://github.com/dodo)"
-, "repository": {"type": "git", "url": "git://github.com/dodo/node-xpath-parser.git"}
+, "repository": {"type": "git", "url": "git://github.com/dodo/xpath-parser.git"}
 , "main": "lib/xpath.js"
 , "engines": {"node": ">= 0.4.x"}
 , "keywords": ["damn", "small", "primitive", "simple", "xpath", "parser"]
