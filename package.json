@@ -1,12 +1,12 @@
-{ "name": "simple-xpath"
+{ "name": "xpath-parser"
 , "description": "simple xpath parser"
 , "version": "0.0.1"
-, "homepage": "https://github.com/dodo/node-simple-xpath"
+, "homepage": "https://github.com/dodo/node-xpath-parser"
 , "author": "dodo (https://github.com/dodo)"
-, "repository": {"type": "git", "url": "git://github.com/dodo/node-simple-xpath.git"}
+, "repository": {"type": "git", "url": "git://github.com/dodo/node-xpath-parser.git"}
 , "main": "lib/xpath.js"
 , "engines": {"node": ">= 0.4.x"}
-, "keywords": ["primitive", "simple", "xpath", "parser"]
+, "keywords": ["damn", "small", "primitive", "simple", "xpath", "parser"]
 , "scripts": {
     "prepublish": "cake build"}
 , "devDependencies": {
