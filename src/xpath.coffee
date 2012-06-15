@@ -113,12 +113,12 @@ exports.parse = parse = (string = "") ->
             if stack[0].prefix?
                 stack[0].QName = stack[0].prefix + ":" + name
             hit = name
-        # operator - = != <= >= > <
-        else if (operator = string.match(/^((|!|<|>)=)|>|</))
-            stack[0].operator = hit = operator[0]
+        # comparator - = != <= >= > <
+        else if (comparator = string.match(/^((|!|<|>)=)|>|</))
+            stack[0].comparator = hit = comparator[0]
         # value - "…" '…'
         else if (
-            stack[0].operator? and
+            stack[0].comparator? and
             (value = string.match(/^('([^']*)'|"([^"]*)"|([^\s\/.]+))/))
           ) or (
             scope[0]?.bracket is "(" and
