@@ -2,6 +2,25 @@
 pad = (s, n) ->
     new Array(n+1).join(s)
 
+open_scope = (scope, stack, string, bracket) ->
+    stack.unshift({})
+    scope.unshift({bracket, ptr:stack.length, pos:string.length})
+
+close_scope = (scope, stack) ->
+    # remove scoped entries from stack
+    exp = stack.splice(0, stack.length - scope[0].ptr + 1)
+    # predicate
+    if scope[0].bracket is "["
+        (stack[0].predicate ?= []).push(exp.reverse())
+    # function call or expression
+    else # ")"
+        # function call
+        if stack[0].q? # we found already some text before
+            stack[0].args = exp.reverse()
+        # expression
+        else
+            stack[0].expression = exp.reverse()
+
 exports.parse = parse = (string = "") ->
     error = (msg) ->
         p = orig.length-string.length
@@ -77,8 +96,7 @@ exports.parse = parse = (string = "") ->
         # open bracket - [ (
         else if (bracket = string.match(/^(\[|\()/))
             bracket = bracket[0]
-            stack.unshift({})
-            scope.unshift({bracket, ptr:stack.length, pos:string.length})
+            open_scope(scope, stack, string, bracket)
             hit = bracket
         # close bracket - ] )
         else if (bracket = string.match(/^(\]|\))/))
@@ -87,19 +105,7 @@ exports.parse = parse = (string = "") ->
             if not scope[0].bracket is opening
                 string = orig.substr(orig.length - scope[0].pos) # restore string
                 throw error "other unclosed scope"
-            # remove scoped entries from stack
-            exp = stack.splice(0, stack.length - scope[0].ptr + 1)
-            # predicate
-            if bracket is "]"
-                (stack[0].predicate ?= []).push(exp.reverse())
-            # function call or expression
-            else # ")"
-                # function call
-                if stack[0].q? # we found already some text before
-                    stack[0].args = exp.reverse()
-                # expression
-                else
-                    stack[0].expression = exp.reverse()
+            close_scope(scope, stack)
             scope.shift()
             hit = bracket
         # name
