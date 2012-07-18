@@ -6,9 +6,17 @@ open_scope = (scope, stack, string, bracket) ->
     stack.unshift({})
     scope.unshift({bracket, ptr:stack.length, pos:string.length})
 
-close_scope = (scope, stack) ->
+close_scope = (scope, stack, opts = {}) ->
     # remove scoped entries from stack
     exp = stack.splice(0, stack.length - scope[0].ptr + 1)
+    # add argument to operator
+    if stack[0].operator
+        (stack[0].args ?= []).push(exp.reverse())
+        if opts.operator
+            stack.unshift({})
+            return
+        exp = [stack[0]]
+        stack[0] = {}
     # predicate
     if scope[0].bracket is "["
         (stack[0].predicate ?= []).push(exp.reverse())
@@ -119,7 +127,13 @@ exports.parse = parse = (string = "") ->
             hit = name
         # comparator - = != <= >= > <
         else if (comparator = string.match(/^((|!|<|>)=)|>|</))
-            stack[0].comparator = hit = comparator[0]
+            operator = comparator[0]
+            # update scope
+            i = stack.length - scope[0].ptr++ + 1
+            stack.splice(i, 0, {operator})
+            close_scope(scope, stack, operator:yes)
+            scope[0].ptr = stack.length
+            hit = operator
         # value - "…" '…'
         else if scope[0]? and (value = string.match(/^('([^']*)'|"([^"]*)")/))
             value = value[0]
