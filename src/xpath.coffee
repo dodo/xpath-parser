@@ -32,7 +32,11 @@ close_scope = (scope, stack, opts = {}) ->
 update_scope = (scope, stack, entry, error) ->
     if stack.length > 0 and Object.keys(stack[0]).length is 0
         throw error "no first parameter given."
-    i = stack.length - scope[0].ptr++ + 1
+    i = stack.length - scope[0].ptr + 1
+    if stack[i]?.operator?
+        close_scope(scope, stack)
+    else
+        i = stack.length - scope[0].ptr++ + 1
     stack.splice(i, 0, entry)
     close_scope(scope, stack, operator:yes)
     scope[0].ptr = stack.length
