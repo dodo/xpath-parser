@@ -84,8 +84,6 @@ exports.parse = parse = (string = "") ->
         else if (bracket = string.match(/^(\]|\))/))
             bracket = bracket[0]
             opening = if bracket is "]" then "[" else "("
-            if not scope.some((s) -> s.bracket is opening)
-                throw error "no opening bracket"
             if not scope[0].bracket is opening
                 string = orig.substr(orig.length - scope[0].pos) # restore string
                 throw error "other unclosed scope"
