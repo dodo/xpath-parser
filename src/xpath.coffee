@@ -29,7 +29,9 @@ close_scope = (scope, stack, opts = {}) ->
         else
             stack[0].expression = exp.reverse()
 
-update_scope = (scope, stack, entry) ->
+update_scope = (scope, stack, entry, error) ->
+    if stack.length > 0 and Object.keys(stack[0]).length is 0
+        throw error "no first parameter given."
     i = stack.length - scope[0].ptr++ + 1
     stack.splice(i, 0, entry)
     close_scope(scope, stack, operator:yes)
@@ -128,7 +130,7 @@ exports.parse = parse = (string = "") ->
         else if (name = string.match(/^\w+/))
             name = name[0]
             if spacebefore and /(and|or)/i.test(name)
-                update_scope(scope, stack, {operator:name})
+                update_scope(scope, stack, {operator:name}, error)
             else
                 stack[0].nc = name
                 stack[0].q = name
@@ -141,12 +143,12 @@ exports.parse = parse = (string = "") ->
             union = union[0]
             if union.length > 1
                 throw error "only one | at once"
-            update_scope(scope, stack, {operator:"union"})
+            update_scope(scope, stack, {operator:"union"}, error)
             hit = union
         # comparator - = != <= >= > <
         else if (comparator = string.match(/^((|!|<|>)=)|>|</))
             operator = comparator[0]
-            update_scope(scope, stack, {operator})
+            update_scope(scope, stack, {operator}, error)
             hit = operator
         # value - "…" '…'
         else if scope[0]? and (value = string.match(/^('([^']*)'|"([^"]*)")/))
