@@ -35,7 +35,11 @@ module.exports =
 
     exp: (æ) ->
         exp = parse '/book/(chapter)[fn:last()]'
-#         exp = parse '/book/(chapter | appendix)[fn:last()]'
+        console.log exp # CRAP
+        æ.done()
+
+    or: (æ) ->
+        exp = parse '/book/(chapter | appendix | section)[fn:last()]'
         console.log exp # CRAP
         æ.done()
 
@@ -44,3 +48,12 @@ module.exports =
         console.log exp # CRAP
         æ.done()
 
+    xmpp: (æ) ->
+        exp = parse "/iq[@get] and /iq[@set] or /iq[@error]"
+        console.log exp # CRAP
+        æ.done()
+
+    blubb: (æ) ->
+        exp = parse "id('foo')/child::para[position()=5]"
+        console.log exp # CRAP
+        æ.done()
