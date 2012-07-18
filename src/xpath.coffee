@@ -44,6 +44,7 @@ exports.parse = parse = (string = "") ->
     orig = "#{string}"
     stack = [{}]
     scope = [] # for brackets
+    spacebefore = no
     while string.length
         hit = null
         # allstars - *
@@ -126,11 +127,14 @@ exports.parse = parse = (string = "") ->
         # name
         else if (name = string.match(/^\w+/))
             name = name[0]
-            stack[0].nc = name
-            stack[0].q = name
-            stack[0].axis ?= "child"
-            if stack[0].prefix?
-                stack[0].q = stack[0].prefix + ":" + name
+            if spacebefore and /(and|or)/i.test(name)
+                update_scope(scope, stack, {operator:name})
+            else
+                stack[0].nc = name
+                stack[0].q = name
+                stack[0].axis ?= "child"
+                if stack[0].prefix?
+                    stack[0].q = stack[0].prefix + ":" + name
             hit = name
         # comparator - = != <= >= > <
         else if (comparator = string.match(/^((|!|<|>)=)|>|</))
@@ -148,6 +152,7 @@ exports.parse = parse = (string = "") ->
         else throw error "not parsable"
         # remove hit from string
         string = string.substr(hit.length)
+        spacebefore = space?
     # all open brackets should be closed by now, if not, throw an error
     if scope.length
         err = scope[scope.length - 1] # get first found bracket
