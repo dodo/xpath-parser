@@ -17,7 +17,7 @@ exports.parse = parse = (string = "") ->
             star = star[0]
             if star.length > 1
                 throw error "only on star at once"
-            stack[0].ncname = star
+            stack[0].nc = star
             hit = star
         # whitespace
         else if (space = string.match(/^\s+/))
@@ -28,7 +28,7 @@ exports.parse = parse = (string = "") ->
             if stack[0].axis?
                 stack.unshift({})
             stack[0].seperator = "/"
-            stack[0].qname = stack[0].ncname = "node"
+            stack[0].q = stack[0].nc = "node"
             stack[0].args = [{}]
             stack[0].axis = switch(axis.length)
                 when 1 then "self"
@@ -47,25 +47,25 @@ exports.parse = parse = (string = "") ->
                 when 2 then "descendant-or-self"
                 else throw error "too much /"
             if sep.length is 2
-                stack[0].qname = stack[0].ncname = "node"
+                stack[0].q = stack[0].nc = "node"
                 stack[0].args = [{}]
         # axis - ::
         else if (axis = string.match(/^::/))
             axis = axis[0]
-            unless stack[0]?.ncname?.length
+            unless stack[0]?.nc?.length
                 throw error "need some chars for axis"
-            stack[0].axis = stack[0].ncname
-            stack[0].ncname = null
-            stack[0].qname = null
+            stack[0].axis = stack[0].nc
+            stack[0].nc = null
+            stack[0].q = null
             hit = axis
         # prefix - :
         else if (prefix = string.match(/^:/))
             prefix = prefix[0]
-            unless stack[0]?.ncname?.length
+            unless stack[0]?.nc?.length
                 throw error "need some chars for prefix"
-            stack[0].prefix = stack[0].ncname
-            stack[0].ncname = null
-            stack[0].qname = null
+            stack[0].prefix = stack[0].nc
+            stack[0].nc = null
+            stack[0].q = null
             hit = prefix
         # attribute shortcut - @
         else if (attr = string.match(/^@+/))
@@ -97,7 +97,7 @@ exports.parse = parse = (string = "") ->
             # function call or expression
             else # ")"
                 # function call
-                if stack[0].qname? # we found already some text before
+                if stack[0].q? # we found already some text before
                     stack[0].args = exp.reverse()
                 # expression
                 else
@@ -107,11 +107,11 @@ exports.parse = parse = (string = "") ->
         # name
         else if (name = string.match(/^\w+/))
             name = name[0]
-            stack[0].ncname = name
-            stack[0].qname = name
+            stack[0].nc = name
+            stack[0].q = name
             stack[0].axis ?= "child"
             if stack[0].prefix?
-                stack[0].qname = stack[0].prefix + ":" + name
+                stack[0].q = stack[0].prefix + ":" + name
             hit = name
         # comparator - = != <= >= > <
         else if (comparator = string.match(/^((|!|<|>)=)|>|</))
