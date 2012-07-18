@@ -45,7 +45,7 @@ exports.parse = parse = (string = "") ->
     # lets begin …
     orig = "#{string}"
     stack = [{}]
-    scope = [] # for brackets
+    scope = [{ptr:1, pos:string.length}] # for brackets
     spacebefore = no
     while string.length
         hit = null
@@ -162,8 +162,11 @@ exports.parse = parse = (string = "") ->
         # remove hit from string
         string = string.substr(hit.length)
         spacebefore = space?
+    if scope[0].ptr isnt 1
+        close_scope(scope, stack)
+        scope.shift()
     # all open brackets should be closed by now, if not, throw an error
-    if scope.length
+    if scope.length > 1
         err = scope[scope.length - 1] # get first found bracket
         string = orig.substr(orig.length - err.pos) # restore string
         throw error "no closing bracket"
