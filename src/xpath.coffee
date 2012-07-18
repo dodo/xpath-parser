@@ -129,7 +129,7 @@ exports.parse = parse = (string = "") ->
         # name
         else if (name = string.match(/^\w+/))
             name = name[0]
-            if spacebefore and /(and|or)/i.test(name)
+            if spacebefore and /(and|or|mod|div)/i.test(name)
                 update_scope(scope, stack, {operator:name}, error)
             else
                 stack[0].nc = name
