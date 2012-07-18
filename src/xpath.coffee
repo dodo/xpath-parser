@@ -105,7 +105,7 @@ exports.parse = parse = (string = "") ->
         else if (attr = string.match(/^@+/))
             attr = attr[0]
             if attr.length > 1
-                throw error "only on @ at once"
+                throw error "only one @ at once"
             stack[0].axis = "attribute"
             hit = attr
         # open bracket - [ (
