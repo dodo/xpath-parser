@@ -29,6 +29,13 @@ close_scope = (scope, stack, opts = {}) ->
         else
             stack[0].expression = exp.reverse()
 
+update_scope = (scope, stack, entry) ->
+    i = stack.length - scope[0].ptr++ + 1
+    stack.splice(i, 0, entry)
+    close_scope(scope, stack, operator:yes)
+    scope[0].ptr = stack.length
+
+
 exports.parse = parse = (string = "") ->
     error = (msg) ->
         p = orig.length-string.length
@@ -128,11 +135,7 @@ exports.parse = parse = (string = "") ->
         # comparator - = != <= >= > <
         else if (comparator = string.match(/^((|!|<|>)=)|>|</))
             operator = comparator[0]
-            # update scope
-            i = stack.length - scope[0].ptr++ + 1
-            stack.splice(i, 0, {operator})
-            close_scope(scope, stack, operator:yes)
-            scope[0].ptr = stack.length
+            update_scope(scope, stack, {operator})
             hit = operator
         # value - "…" '…'
         else if scope[0]? and (value = string.match(/^('([^']*)'|"([^"]*)")/))
