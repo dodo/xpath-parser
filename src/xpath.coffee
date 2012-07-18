@@ -129,8 +129,11 @@ exports.parse = parse = (string = "") ->
         # name
         else if (name = string.match(/^\w+/))
             name = name[0]
+            i = stack.length - scope[0].ptr + 1
             if spacebefore and /(and|or|mod|div)/i.test(name)
                 update_scope(scope, stack, {operator:name}, error)
+            else if stack[i]?.operator? and stack[i]?.operator isnt "union"
+                stack[0].value = name
             else
                 stack[0].nc = name
                 stack[0].q = name
