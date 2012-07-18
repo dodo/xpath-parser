@@ -136,6 +136,13 @@ exports.parse = parse = (string = "") ->
                 if stack[0].prefix?
                     stack[0].q = stack[0].prefix + ":" + name
             hit = name
+        # union operator - |
+        else if (union = string.match(/^\|+/))
+            union = union[0]
+            if union.length > 1
+                throw error "only one | at once"
+            update_scope(scope, stack, {operator:"union"})
+            hit = union
         # comparator - = != <= >= > <
         else if (comparator = string.match(/^((|!|<|>)=)|>|</))
             operator = comparator[0]
