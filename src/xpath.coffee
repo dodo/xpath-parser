@@ -118,7 +118,7 @@ exports.parse = parse = (string = "") ->
             stack[0].comparator = hit = comparator[0]
         # value - "…" '…'
         else if (
-            stack[0].comparator? and
+            stack[0]?.comparator? and
             (value = string.match(/^('([^']*)'|"([^"]*)"|([^\s\/.]+))/))
           ) or (
             scope[0]?.bracket is "(" and
