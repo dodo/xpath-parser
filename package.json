@@ -11,6 +11,7 @@
     "test": "cake build && nodeunit test",
     "prepublish": "cake build"}
 , "devDependencies": {
+    "eyes": ">= 0.1.7",
     "nodeunit": ">= 0.5.4",
     "muffin": ">= 0.2.6",
     "coffee-script": ">= 1.1.3"}
