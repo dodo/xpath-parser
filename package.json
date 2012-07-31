@@ -12,4 +12,7 @@
 , "devDependencies": {
     "muffin": ">= 0.2.6",
     "coffee-script": ">= 1.1.3"}
+, "licenses" : [
+    { "type": "MIT" ,
+      "url": "http://github.com/dodo/xpath-parser/raw/master/LICENSE"} ]
 }
