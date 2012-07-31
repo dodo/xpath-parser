@@ -8,8 +8,10 @@
 , "engines": {"node": ">= 0.4.x"}
 , "keywords": ["damn", "small", "primitive", "simple", "xpath", "parser"]
 , "scripts": {
+    "test": "cake build && nodeunit test",
     "prepublish": "cake build"}
 , "devDependencies": {
+    "nodeunit": ">= 0.5.4",
     "muffin": ">= 0.2.6",
     "coffee-script": ">= 1.1.3"}
 , "licenses" : [
