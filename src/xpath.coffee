@@ -19,6 +19,7 @@ close_scope = (scope, stack, opts = {}) ->
         stack[0] = {}
     # predicate
     if scope[0].bracket is "["
+        stack.shift() unless Object.keys(stack[0]).length
         (stack[0].predicate ?= []).push(exp.reverse())
     # function call or expression
     else # ")"
