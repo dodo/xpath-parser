@@ -6,7 +6,7 @@ open_scope = (scope, stack, string, bracket) ->
     stack.unshift({})
     scope.unshift({bracket, ptr:stack.length, pos:string.length})
 
-close_scope = (scope, stack, opts = {}) ->
+close_scope = (scope, stack, error, opts = {}) ->
     # remove scoped entries from stack
     exp = stack.splice(0, stack.length - scope[0].ptr + 1)
     # add argument to operator
@@ -18,8 +18,12 @@ close_scope = (scope, stack, opts = {}) ->
         exp = [stack[0]]
         stack[0] = {}
     # predicate
-    if scope[0].bracket is "["
-        stack.shift() unless Object.keys(stack[0]).length
+    if opts.bracket?
+        if opts.bracket isnt scope[0].bracket
+            throw error "unclosed scope"
+        else unless Object.keys(stack[0]).length
+            stack.shift()
+    if opts.bracket and scope[0].bracket is "["
         (stack[0].predicate ?= []).push(exp.reverse())
     # function call or expression
     else # ")"
@@ -35,11 +39,11 @@ update_scope = (scope, stack, entry, error) ->
         throw error "no first parameter given."
     i = stack.length - scope[0].ptr + 1
     if stack[i]?.operator?
-        close_scope(scope, stack)
+        close_scope(scope, stack, error)
     else
         i = stack.length - scope[0].ptr++ + 1
     stack.splice(i, 0, entry)
-    close_scope(scope, stack, operator:yes)
+    close_scope(scope, stack, error, operator:yes)
     scope[0].ptr = stack.length
 
 
@@ -128,7 +132,7 @@ exports.parse = parse = (string = "") ->
             if not scope[0].bracket is opening
                 string = orig.substr(orig.length - scope[0].pos) # restore string
                 throw error "other unclosed scope"
-            close_scope(scope, stack)
+            close_scope(scope, stack, error, bracket:opening)
             scope.shift()
             hit = bracket
         # name
