@@ -49,11 +49,21 @@ module.exports =
         æ.done()
 
     xmpp: (æ) ->
-        exp = parse "/iq[@get] and /iq[@set] or /iq[@error]"
+        exp = parse "/iq[@get] or /iq[@set] and /iq[@error]"
         console.log exp # CRAP
         æ.done()
 
     blubb: (æ) ->
-        exp = parse "id('foo')/child::para[position()=5]"
+        exp = parse "id('foo')/child::para[position5)]"
+        console.log exp # CRAP
+        æ.done()
+
+    presence: (æ) ->
+        exp = parse "self::presence[@type='chat' and @id='id']"
+        console.log exp # CRAP
+        æ.done()
+
+    info: (æ) ->
+        exp = parse "self::iq[@type=result and @id='id']/info:query"
         console.log exp # CRAP
         æ.done()
