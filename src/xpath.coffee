@@ -10,11 +10,17 @@ close_scope = (scope, stack, error, opts = {}) ->
     # remove scoped entries from stack
     exp = stack.splice(0, stack.length - scope[0].ptr + 1)
     # add argument to operator
-    if stack[0].operator
+    if stack[0].operator?
         (stack[0].args ?= []).push(exp.reverse())
         if opts.operator
             stack.unshift({})
             return
+        [a,b] = [stack[0].operator,stack[0].args[0][0].expression?[0]?.operator]
+        if (a is "=" and b? and /(and|or|mod|div)/i.test(b)) or (a is "and" and b is "or")
+            swap = stack[0]
+            stack[0] = swap.args[0][0]
+            swap.args[0][0] = stack[0].expression[0].args[1][0]
+            stack[0].expression[0].args[1][0] = swap
         exp = [stack[0]]
         stack[0] = {}
     # predicate
@@ -174,6 +180,9 @@ exports.parse = parse = (string = "") ->
         # remove hit from string
         string = string.substr(hit.length)
         spacebefore = space?
+    if scope[0].ptr isnt 1
+        close_scope(scope, stack)
+        scope.shift()
     # all open brackets should be closed by now, if not, throw an error
     if scope.length > 1
         err = scope[scope.length - 2] # get first found bracket
