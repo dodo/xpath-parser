@@ -54,7 +54,7 @@ module.exports =
         æ.done()
 
     blubb: (æ) ->
-        exp = parse "id('foo')/child::para[position5)]"
+        exp = parse "id('foo')/child::para[position(5)]"
         console.log exp # CRAP
         æ.done()
 
