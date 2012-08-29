@@ -147,7 +147,7 @@ exports.parse = parse = (string = "") ->
             i = stack.length - scope[0].ptr + 1
             if spacebefore and /(and|or|mod|div)/i.test(name)
                 update_scope(scope, stack, {operator:name}, error)
-            else if stack[i]?.operator? and stack[i]?.operator isnt "union"
+            else if (o = stack[i]?.operator)? and not stack[0].axis? and o isnt "union"
                 stack[0].value = name
             else
                 stack[0].nc = name
