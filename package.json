@@ -1,6 +1,6 @@
 { "name": "xpath-parser"
 , "description": "simple xpath parser"
-, "version": "0.0.5"
+, "version": "0.0.6"
 , "homepage": "https://github.com/dodo/xpath-parser"
 , "author": "dodo (https://github.com/dodo)"
 , "repository": {"type": "git", "url": "git://github.com/dodo/xpath-parser.git"}
