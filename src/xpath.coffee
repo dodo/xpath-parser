@@ -5,6 +5,7 @@ pad = (s, n) ->
 open_scope = (scope, stack, string, bracket) ->
     stack.unshift({})
     scope.unshift({bracket, ptr:stack.length, pos:string.length})
+    stack[0].axis = "self" if bracket is "["
 
 close_scope = (scope, stack, error, opts = {}) ->
     # remove scoped entries from stack
