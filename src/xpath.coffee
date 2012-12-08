@@ -36,7 +36,7 @@ close_scope = (scope, stack, error, opts = {}) ->
     else # ")"
         # function call
         if stack[0].q? # we found already some text before
-            stack[0].args = exp.reverse()
+            (stack[0].args ?= []).push(exp.reverse())
         # expression
         else
             stack[0].expression = exp.reverse()
