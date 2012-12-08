@@ -10,7 +10,7 @@ close_scope = (scope, stack, error, opts = {}) ->
     # remove scoped entries from stack
     exp = stack.splice(0, stack.length - scope[0].ptr + 1)
     # add argument to operator
-    if stack[0].operator?
+    if stack[0]?.operator?
         (stack[0].args ?= []).push(exp.reverse())
         if opts.operator
             stack.unshift({})
