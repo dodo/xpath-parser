@@ -67,3 +67,8 @@ module.exports =
         exp = parse "self::iq[@type=result and @id='id']/info:query"
         console.log exp # CRAP
         æ.done()
+
+    or2: (æ) ->
+        exp = parse "self::iq[@type=result and @id='id']/roster:query/descendant-or-self::(self::query|self::item)"
+        console.log exp # CRAP
+        æ.done()
