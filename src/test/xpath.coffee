@@ -72,3 +72,8 @@ module.exports =
         exp = parse "self::iq[@type=result and @id='id']/roster:query/descendant-or-self::(self::query|self::item)"
         console.log exp # CRAP
         æ.done()
+
+    or3: (æ) ->
+        exp = parse "self::presence[@type=unavailable or @type=subscribed or @type=unsubscribed or @type=subscribe or @type=unsubscribe or not(@type)]"
+        console.log exp # CRAP
+        æ.done()
