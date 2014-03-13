@@ -143,7 +143,7 @@ exports.parse = parse = (string = "") ->
             scope.shift()
             hit = bracket
         # name
-        else if (name = string.match(/^(\w|-\w)+/))
+        else if (name = string.match(/^([^\(\)\[\]\s'":.=!<>\/|])+/))
             name = name[0]
             i = stack.length - scope[0].ptr + 1
             if spacebefore and /(and|or|mod|div)/i.test(name)
