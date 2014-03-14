@@ -1,16 +1,12 @@
-util = require 'util'
-util.orginspect = util.inspect
-util.inspect = require('eyes').inspector(stream:null)
-# console.dir = require 'cdir'
-
+debug = require('debug') 'test:xpath'
+inspect = require('eyes').inspector(stream:null)
 { parse } = require '../lib/xpath'
-
 
 module.exports =
 
     foo: (æ) ->
         exp = parse "/f:iq/o:query/namespace::o:foobar"
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.prefix), ['f','o','o']
         æ.deepEqual exp.map((e)-> e.axis), ['child','child','namespace']
         æ.deepEqual exp.map((e)-> e.nc), ['iq','query','foobar']
@@ -18,7 +14,7 @@ module.exports =
 
     bar: (æ) ->
         exp = parse '//form[@action = "submi t.html"]//table'#//*[not(text())]'
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.nc), ['node','form','node','table']
         æ.deepEqual exp.map((e)-> e.axis), [
             'descendant-or-self'
@@ -38,7 +34,7 @@ module.exports =
 
     baz: (æ) ->
         exp = parse "/iq/query../namespace::foobar"
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.axis), ['child','child','parent','namespace']
         æ.deepEqual exp.map((e)-> e.nc), ['iq','query','node','foobar']
         æ.deepEqual exp[2]?.args, [{}]
@@ -46,7 +42,7 @@ module.exports =
 
     'self::ns': (æ) ->
         exp = parse "/self::node()/gs:enquiry/@ping:pong"
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.prefix), [undefined,'gs','ping']
         æ.deepEqual exp.map((e)-> e.axis), ['self','child','attribute']
         æ.deepEqual exp.map((e)-> e.nc), ['node','enquiry','pong']
@@ -55,7 +51,7 @@ module.exports =
 
     './ns': (æ) ->
         exp = parse "./gs:enquiry/attribute::ping:pong"
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.prefix), [undefined,'gs','ping']
         æ.deepEqual exp.map((e)-> e.axis), ['self','child','attribute']
         æ.deepEqual exp.map((e)-> e.nc), ['node','enquiry','pong']
@@ -64,7 +60,7 @@ module.exports =
 
     iq: (æ) ->
         exp = parse '/iq[@id="rofl"]/lol:w00t'
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.prefix), [undefined,'lol']
         æ.deepEqual exp.map((e)-> e.axis), ['child','child']
         æ.deepEqual exp.map((e)-> e.nc), ['iq','w00t']
@@ -78,7 +74,7 @@ module.exports =
 
     exp: (æ) ->
         exp = parse '/überbook/(chapter)[fn:last()]'
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.axis), ['child','child']
         æ.deepEqual exp.map((e)-> e.nc), ['überbook', undefined]
         æ.deepEqual exp[1]?.predicate, [
@@ -89,7 +85,7 @@ module.exports =
 
     or: (æ) ->
         exp = parse '/book/(chapter | appendix | section)[fn:last()]'
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.axis), ['child','child']
         æ.deepEqual exp.map((e)-> e.nc), ['book', undefined]
         æ.deepEqual exp[1]?.predicate, [
@@ -110,7 +106,7 @@ module.exports =
 
     id: (æ) ->
         exp = parse 'id("rofl")/lol:w00t'
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.prefix), [undefined, 'lol']
         æ.deepEqual exp.map((e)-> e.axis), ['child','child']
         æ.deepEqual exp.map((e)-> e.nc), ['id','w00t']
@@ -119,7 +115,7 @@ module.exports =
 
     short: (æ) ->
         exp = parse "c | o | l"
-        console.log exp
+        debug inspect exp
         æ.equals 1, exp?.length
         æ.deepEqual exp[0]?.expression, [
             operator:'union', args:[
@@ -136,7 +132,7 @@ module.exports =
 
     xmpp: (æ) ->
         exp = parse "/iq[@get] or /iq[@set] and /iq[@error]"
-        console.log exp
+        debug inspect exp
         æ.equals 1, exp?.length
         æ.equals 1, exp[0]?.expression?.length
         æ.deepEqual exp[0]?.expression?[0]?.expression, [
@@ -158,7 +154,7 @@ module.exports =
 
     blubb: (æ) ->
         exp = parse "id('foo')/child::para[position(5)]"
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.axis), ['child','child']
         æ.deepEqual exp.map((e)-> e.nc), ['id','para']
         æ.deepEqual exp[0]?.args, [[value:'foo']]
@@ -171,7 +167,7 @@ module.exports =
 
     presence: (æ) ->
         exp = parse "self::presence[@type='überchat' and @id='id']"
-        console.log exp
+        debug inspect exp
         æ.equals 1, exp?.length
         æ.equals 1, exp[0]?.predicate?.length
         æ.equals 1, exp[0]?.predicate?[0]?.length
@@ -191,7 +187,7 @@ module.exports =
 
     info: (æ) ->
         exp = parse "self::iq[@type=result and @id='id']/info:query"
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.prefix), [undefined, 'info']
         æ.deepEqual exp.map((e)-> e.axis), ['self','child']
         æ.deepEqual exp.map((e)-> e.nc), ['iq','query']
@@ -199,7 +195,7 @@ module.exports =
 
     or2: (æ) ->
         exp = parse "self::iq[@type=result and @id='id']/roster:query/descendant-or-self::(self::query|self::item)"
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.prefix), [undefined, 'roster', undefined]
         æ.deepEqual exp.map((e)-> e.axis), ['self','child','descendant-or-self']
         æ.deepEqual exp.map((e)-> e.nc), ['iq','query', null] # FIXME not undefined?
@@ -207,7 +203,7 @@ module.exports =
 
     or3: (æ) ->
         exp = parse "self::presence[@type=unavailable or @type=subscribed or @type=unsubscribed or @type=subscribe or @type=unsubscribe or not(@type)]"
-        console.log exp
+        debug inspect exp
         æ.deepEqual exp.map((e)-> e.axis), ['self']
         æ.deepEqual exp.map((e)-> e.nc), ['presence']
         æ.done()
