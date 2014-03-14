@@ -1,5 +1,5 @@
 { "name": "xpath-parser"
-, "description": "simple xpath parser"
+, "description": "damn small xpath parser"
 , "version": "0.1.0"
 , "homepage": "https://github.com/dodo/xpath-parser"
 , "author": "dodo (https://github.com/dodo)"
